@@ -1,0 +1,9 @@
+# silly macOS
+.DS_Store
+
+# build files
+/build/*
+/UnscentedKF.dir/*
+/.vs/*
+/build/.vs/UnscentedKF/v15
+/x64/Debug/ZERO_CHECK
