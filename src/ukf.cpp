@@ -19,15 +19,22 @@ UKF::UKF() {
 
   // initial state vector
   x_ = VectorXd(5);
-
+  x_.fill(0.0);
   // initial covariance matrix
   P_ = MatrixXd(5, 5);
+  P_ << 1, 0, 0, 0, 0,
+	  0, 1, 0, 0, 0,
+	  0, 0, 1000, 0, 0,
+	  0, 0, 0, 1000, 0,
+	  0, 0, 0, 0, 1000;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
   std_a_ = 30;
+  //double std_a = 0.2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
   std_yawdd_ = 30;
+  //double std_yawdd = 0.2;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -51,6 +58,27 @@ UKF::UKF() {
 
   Hint: one or more values initialized above might be wildly off...
   */
+  //set state dimension
+  n_x_ = 5;
+
+  //set augmented dimension
+  n_aug_ = 7;
+
+  //create sigma point matrix
+  MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
+  Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
+
+  //define spreading parameter
+  lambda_ = 3 - n_aug_;
+  weights_ = VectorXd(2 * n_aug_ + 1);
+  //set weights
+  weights_[0] = lambda_ / (lambda_ + n_aug_);
+  for (int i = 1; i < 2 * n_aug_ + 1; i++)
+  {
+	  double weight = 0.5 / (n_aug_ + lambda_);
+	  weights_(i) = weight;
+  }
+
 }
 
 UKF::~UKF() {}
