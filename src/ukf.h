@@ -69,7 +69,16 @@ public:
 
   ///* Sigma point spreading parameter
   double lambda_;
-
+  int radar_n_z_;
+  int laser_n_z_;
+  double radar_NIS_;
+  double lidar_NIS_;
+  MatrixXd radar_Zsig_;
+  MatrixXd laser_Zsig_;
+  VectorXd radar_z_pred_;
+  VectorXd laser_z_pred_;
+  MatrixXd radar_S_;
+  MatrixXd laser_S_;
 
   /**
    * Constructor
@@ -109,12 +118,12 @@ public:
   // previous timestamp
   long long previous_timestamp_;
 
-  void GenerateSigmaPoints(MatrixXd* Xsig_out);
-  void AugmentedSigmaPoints(MatrixXd* Xsig_out);
-  void SigmaPointPrediction(MatrixXd* Xsig_out);
-  void PredictMeanAndCovariance(VectorXd* x_pred, MatrixXd* P_pred);
-  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out);
-  void UpdateState(VectorXd* x_out, MatrixXd* P_out);
+  void AugmentedSigmaPoints(void);
+  void SigmaPointPrediction(double delta_t);
+  void PredictMeanAndCovariance(void);
+  void PredictRadarMeasurement(void);
+  void PredictLaserMeasurement(void);
+  void UpdateState(void);
 };
 
 #endif /* UKF_H */
