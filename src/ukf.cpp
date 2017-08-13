@@ -33,7 +33,7 @@ UKF::UKF() {
   //double std_a = 0.2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 1;
+  std_yawdd_ = 0.6;
   //double std_yawdd = 0.2;
 
   // Laser measurement noise standard deviation position1 in m
@@ -110,6 +110,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   */
 	if (use_laser_ == false && meas_package.sensor_type_ == MeasurementPackage::LASER) return;
 	if (use_radar_ == false && meas_package.sensor_type_ == MeasurementPackage::RADAR) return;
+
   /*****************************************************************************
   *  Initialization
   ****************************************************************************/
@@ -127,11 +128,11 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 			float rho_dot = meas_package.raw_measurements_[2];
 			px = rho * cos(phi);
 			py = rho * sin(phi);
-			vx = rho_dot * cos(phi);
-			vy = rho_dot * sin(phi);
-			v = sqrt(vx*vx + vy*vy);
-			yaw = atan2(vy, vx);
-			x_ << px, py, v, yaw,0;
+			//vx = rho_dot * cos(phi);
+			//vy = rho_dot * sin(phi);
+			//v = sqrt(vx*vx + vy*vy);
+			//yaw = atan2(vy, vx);
+			x_ << px, py, 0, 0,0;
 		}
 		else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
 			/**
@@ -145,6 +146,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 		// done initializing, no need to predict or update
 		is_initialized_ = true;
 		previous_timestamp_ = meas_package.timestamp_;
+		return;
+	}
+	if (abs(meas_package.raw_measurements_[0]) < 0.000001 || abs(meas_package.raw_measurements_[1]) < 0.000001) {
 		return;
 	}
 	float dt = (meas_package.timestamp_ - previous_timestamp_) / 1000000.0;
