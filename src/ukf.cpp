@@ -29,11 +29,11 @@ UKF::UKF() {
 	  -0.0020, 0.0060, 0.0008, 0.0100, 0.0123;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 0.2;
+  std_a_ = 10;
   //double std_a = 0.2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.2;
+  std_yawdd_ = 1;
   //double std_yawdd = 0.2;
 
   // Laser measurement noise standard deviation position1 in m
@@ -153,9 +153,11 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 	/*****************************************************************************
 	*  Prediction
 	****************************************************************************/
-	cout << "Prediction" << endl;
-	previous_timestamp_ = meas_package.timestamp_;
-	Prediction(dt);
+	if (dt > 0.0001)
+	{/*
+		cout << "Prediction" << endl;*/
+		Prediction(dt);
+	}
 	/*****************************************************************************
 	*  Update
 	****************************************************************************/
@@ -164,17 +166,17 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 	* Use the sensor type to perform the update step.
 	* Update the state and covariance matrices.
 	*/
-	cout << "update" << endl;
+	//cout << "update" << endl;
 	if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
 		// Radar updates
 		PredictRadarMeasurement();
 		UpdateRadar(meas_package);
-		cout << "radar updated" << endl;
+		//cout << "radar updated" << endl;
 	}
 	else {
 		PredictLaserMeasurement();
-		UpdateLidar(meas_package);
-		cout << "lidar updated" << endl;
+		UpdateLidar(meas_package);/*
+		cout << "lidar updated" << endl;*/
 	}
 
 
@@ -229,7 +231,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 	MatrixXd K = Tc * laser_S_.inverse();
 	VectorXd z_diff = z - laser_z_pred_;
 	lidar_NIS_ = z_diff.transpose()*laser_S_.inverse()*z_diff;
-	cout << "lidar_NIS_" << endl<< lidar_NIS_ <<endl;
+	cout << "lidar_NIS_" << lidar_NIS_ <<endl;
 	x_ = x_ + K * z_diff;
 	P_ = P_ - K*laser_S_*K.transpose();
 	
@@ -275,7 +277,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 	MatrixXd K = Tc * radar_S_.inverse();
 	VectorXd z_diff = z - radar_z_pred_;
 	radar_NIS_ = z_diff.transpose()*radar_S_.inverse()*z_diff;
-	cout << "radar_NIS_ " << endl << radar_NIS_ <<endl;
+	cout << "radar_NIS_ " << radar_NIS_ <<endl;
 	while (z_diff(1)> M_PI) z_diff(1) -= 2.*M_PI;
 	while (z_diff(1)<-M_PI) z_diff(1) += 2.*M_PI;
 	//update 
@@ -424,11 +426,11 @@ void UKF::PredictRadarMeasurement() {
 	******************************************************************************/
 
 	//print result
-	std::cout << "radar_z_pred_: " << std::endl << radar_z_pred_ << std::endl;
-	std::cout << "radar_S_: " << std::endl << radar_S_ << std::endl;
+	//std::cout << "radar_z_pred_: " << std::endl << radar_z_pred_ << std::endl;
+	//std::cout << "radar_S_: " << std::endl << radar_S_ << std::endl;
 }
 void UKF::PredictLaserMeasurement() {
-	cout << "PredictLaserMeasurement" << endl;
+	//cout << "PredictLaserMeasurement" << endl;
 	//transform sigma points into measurement space
 	laser_Zsig_.fill(0.0);
 	for (int i = 0; i < 2 * n_aug_ + 1; i++)
@@ -465,7 +467,7 @@ void UKF::PredictLaserMeasurement() {
 	//* Student part end
 	//******************************************************************************/
 
-	////print result
-	std::cout << "laser_z_pred_: " << std::endl << laser_z_pred_ << std::endl;
-	std::cout << "laser_S_: " << std::endl << laser_S_ << std::endl;
+	//////print result
+	//std::cout << "laser_z_pred_: " << std::endl << laser_z_pred_ << std::endl;
+	//std::cout << "laser_S_: " << std::endl << laser_S_ << std::endl;
 }
