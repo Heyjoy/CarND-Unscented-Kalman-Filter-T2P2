@@ -64,6 +64,8 @@ public:
   ///* Augmented state dimension
   int n_aug_;
 
+  int n_sig_;
+
   ///* create sigma point matrix
   MatrixXd Xsig_aug_;
 

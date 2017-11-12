@@ -21,19 +21,14 @@ UKF::UKF() {
   x_ = VectorXd(5);
   x_.fill(0.0);
   // initial covariance matrix
-  P_ = MatrixXd(5, 5);
-  P_ << 0.0043, -0.0013, 0.0030, -0.0022, -0.0020,
-	  -0.0013, 0.0077, 0.0011, 0.0071, 0.0060,
-	  0.0030, 0.0011, 0.0054, 0.0007, 0.0008,
-	  -0.0022, 0.0071, 0.0007, 0.0098, 0.0100,
-	  -0.0020, 0.0060, 0.0008, 0.0100, 0.0123;
+  P_ = MatrixXd::Identity(5, 5); 
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 10;
+  std_a_ = 0.2;
   //double std_a = 0.2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.6;
+  std_yawdd_ = 1;
   //double std_yawdd = 0.2;
 
   // Laser measurement noise standard deviation position1 in m
@@ -63,17 +58,18 @@ UKF::UKF() {
 
   //set augmented dimension
   n_aug_ = 7;
+  n_sig_ = 2 * n_aug_;
 
   //create sigma point matrix
-  Xsig_aug_ = MatrixXd(n_aug_, 2 * n_aug_ + 1);
-  Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
+  Xsig_aug_ = MatrixXd(n_aug_, n_sig_ + 1);
+  Xsig_pred_ = MatrixXd(n_x_, n_sig_ + 1);
 
   //define spreading parameter
   lambda_ = 3 - n_aug_;
-  weights_ = VectorXd(2 * n_aug_ + 1);
+  weights_ = VectorXd(n_sig_ + 1);
   //set weights
   weights_[0] = lambda_ / (lambda_ + n_aug_);
-  for (int i = 1; i < 2 * n_aug_ + 1; i++)
+  for (int i = 1; i < n_sig_ + 1; i++)
   {
 	  double weight = 0.5 / (n_aug_ + lambda_);
 	  weights_(i) = weight;
@@ -82,8 +78,9 @@ UKF::UKF() {
   laser_n_z_ = 2;
   radar_NIS_ = 0;
   lidar_NIS_ = 0;
-  radar_Zsig_ = MatrixXd(radar_n_z_, 2 * n_aug_ + 1);
-  laser_Zsig_ = MatrixXd(laser_n_z_, 2 * n_aug_ + 1);
+
+  radar_Zsig_ = MatrixXd(radar_n_z_, n_sig_ + 1);
+  laser_Zsig_ = MatrixXd(laser_n_z_, n_sig_ + 1);
   radar_z_pred_= VectorXd(radar_n_z_);
   laser_z_pred_ = VectorXd(laser_n_z_);
   VectorXd laser_z_pred_;
