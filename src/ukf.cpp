@@ -83,16 +83,16 @@ UKF::UKF() {
   VectorXd laser_z_pred_;
   radar_S_ = MatrixXd(radar_n_z_, radar_n_z_);
   laser_S_ = MatrixXd(laser_n_z_, laser_n_z_);
-  
-  //add measurement noise covariance matrix
-  laser_R = MatrixXd(laser_n_z_, laser_n_z_);
-  laser_R << std_laspx_*std_laspx_, 0,
-		0, std_laspy_*std_laspy_;
+
   //add measurement noise covariance matrix
   radar_R = MatrixXd(radar_n_z_, radar_n_z_);
   radar_R << std_radr_*std_radr_, 0, 0,
 	  0, std_radphi_*std_radphi_, 0,
 	  0, 0, std_radrd_*std_radrd_;
+  //add measurement noise covariance matrix
+  laser_R = MatrixXd(laser_n_z_, laser_n_z_);
+  laser_R << std_laspx_*std_laspx_, 0,
+	  0, std_laspy_*std_laspy_;
 
   //for the first measurment
   is_initialized_ = false;
@@ -424,7 +424,6 @@ void UKF::PredictRadarMeasurement() {
 		radar_S_ = radar_S_ + weights_(i) * z_diff * z_diff.transpose();
 	}
 
-
 	radar_S_ = radar_S_ + radar_R;
 
 
@@ -439,8 +438,7 @@ void UKF::PredictRadarMeasurement() {
 void UKF::PredictLaserMeasurement() {
 	//cout << "PredictLaserMeasurement" << endl;
 	//transform sigma points into measurement space
-	MatrixXd Zsig = Xsig_pred_.block(0, 0, laser_n_z_, 2 * n_aug_ + 1);
-
+	laser_Zsig_ = Xsig_pred_.block(0, 0, laser_n_z_, n_sig_ + 1);
 	//calculate mean predicted measurement
 	laser_z_pred_.fill(0.0);
 	for (int i = 0; i < n_sig_ + 1; i++) {
@@ -454,7 +452,7 @@ void UKF::PredictLaserMeasurement() {
 		laser_S_ = laser_S_ + weights_(i) * z_diff * z_diff.transpose();
 	}
 
-	
+
 	laser_S_ = laser_S_ + laser_R;
 
 
