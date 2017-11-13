@@ -81,7 +81,9 @@ public:
   VectorXd laser_z_pred_;
   MatrixXd radar_S_;
   MatrixXd laser_S_;
-
+  //noise matrix
+  MatrixXd laser_R;
+  MatrixXd radar_R;
   /**
    * Constructor
    */
